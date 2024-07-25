@@ -13,5 +13,5 @@ This project uses Flutter to run. To get started, ensure you have Flutter instal
 - Benjamin Taylor:[bt2@students.federation.edu.au
 - James Thomas: jt@students.federation.edu.au
 - Wansala Dissanayaka Dissanayaka Mudiyanselage: sd2@students.federation.edu.au
-
+- Aman Kumar Shah: amankumars@students.federation.edu.au
 
