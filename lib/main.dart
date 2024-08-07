@@ -57,6 +57,10 @@ class HomeScreen extends StatelessWidget {
         title: Text('Home'),
         actions: [
           IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
+          ),
+          IconButton(
             icon: Icon(Icons.help_outline),
             onPressed: () => _showHelpDialog(context),
           ),
@@ -81,10 +85,6 @@ class HomeScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/schedule'),
               child: Text('Schedule Checks'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/settings'),
-              child: Text('Settings'),
             ),
           ],
         ),
@@ -161,6 +161,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
 
 class CreatePage extends StatefulWidget {
   @override
