@@ -66,28 +66,38 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset(
-              appStateManager.selectedMascot,
-              width: 150,
-              height: 150,
+      body: Column(
+        children: [
+          Image.asset(
+            'assets/bodycheck.png',
+            height: 100, // Adjust this value as needed
+          ),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Image.asset(
+                    appStateManager.selectedMascot,
+                    width: 150,
+                    height: 150,
+                  ),
+                  SizedBox(height: 20),
+                  Text('Welcome to the Body Check App'),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/create'),
+                    child: Text('Create Body Check'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/schedule'),
+                    child: Text('Schedule Checks'),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 20),
-            Text('Welcome to the Body Check App'),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/create'),
-              child: Text('Create Body Check'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/schedule'),
-              child: Text('Schedule Checks'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -223,130 +233,130 @@ class _CreatePageState extends State<CreatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Create Custom Body Check'),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+      appBar: AppBar(
+        title: Text('Create Custom Body Check'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        body: Padding(
+      ),
+      body: Padding(
         padding: const EdgeInsets.all(20.0),
-    child: Form(
-    key: _formKey,
-    child: ListView(
-    children: [
-    Text('Select Body Part:'),
-    Row(
-    children: [
-    Radio<String>(
-    value: 'Head',
-    groupValue: _selectedBodyPart,
-    onChanged: (String? value) {
-    setState(() {
-    _selectedBodyPart = value!;
-    _isCustomBodyPartSelected = false;
-    });
-    },
-    ),
-    Text('Head'),
-    Radio<String>(
-    value: 'Torso',
-    groupValue: _selectedBodyPart,
-    onChanged: (String? value) {
-    setState(() {
-    _selectedBodyPart = value!;
-    _isCustomBodyPartSelected = false;
-    });
-    },
-    ),
-    Text('Torso'),
-    Radio<String>(
-    value: 'Legs',
-    groupValue: _selectedBodyPart,
-    onChanged: (String? value) {
-    setState(() {
-    _selectedBodyPart = value!;
-    _isCustomBodyPartSelected = false;
-    });
-    },
-    ),
-    Text('Legs'),
-    Radio<String>(
-    value: 'Custom',
-    groupValue: _selectedBodyPart,
-    onChanged: (String? value) {
-    setState(() {
-    _selectedBodyPart = value!;
-    _isCustomBodyPartSelected = true;
-    });
-    },
-    ),
-    Text('Custom'),
-    ],
-    ),
-      if (_isCustomBodyPartSelected)
-        TextFormField(
-          onChanged: (value) {
-            setState(() {
-              _customBodyPart = value;
-            });
-          },
-          decoration: InputDecoration(
-            labelText: 'Custom Body Part',
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              Text('Select Body Part:'),
+              Row(
+                children: [
+                  Radio<String>(
+                    value: 'Head',
+                    groupValue: _selectedBodyPart,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedBodyPart = value!;
+                        _isCustomBodyPartSelected = false;
+                      });
+                    },
+                  ),
+                  Text('Head'),
+                  Radio<String>(
+                    value: 'Torso',
+                    groupValue: _selectedBodyPart,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedBodyPart = value!;
+                        _isCustomBodyPartSelected = false;
+                      });
+                    },
+                  ),
+                  Text('Torso'),
+                  Radio<String>(
+                    value: 'Legs',
+                    groupValue: _selectedBodyPart,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedBodyPart = value!;
+                        _isCustomBodyPartSelected = false;
+                      });
+                    },
+                  ),
+                  Text('Legs'),
+                  Radio<String>(
+                    value: 'Custom',
+                    groupValue: _selectedBodyPart,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedBodyPart = value!;
+                        _isCustomBodyPartSelected = true;
+                      });
+                    },
+                  ),
+                  Text('Custom'),
+                ],
+              ),
+              if (_isCustomBodyPartSelected)
+                TextFormField(
+                  onChanged: (value) {
+                    setState(() {
+                      _customBodyPart = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Custom Body Part',
+                  ),
+                  validator: (value) {
+                    if (_isCustomBodyPartSelected && value!.isEmpty) {
+                      return 'Please enter a custom body part';
+                    }
+                    return null;
+                  },
+                ),
+              SizedBox(height: 20),
+              Text(
+                'Rate Condition:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Slider(
+                value: _rating,
+                onChanged: (value) {
+                  setState(() {
+                    _rating = value;
+                  });
+                },
+                min: 0,
+                max: 10,
+                divisions: 10,
+                label: _rating.toStringAsFixed(1),
+              ),
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _isCompleted,
+                    onChanged: (value) {
+                      setState(() {
+                        _isCompleted = value!;
+                      });
+                    },
+                  ),
+                  Text(
+                    'Mark as Completed',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _validateAndSubmit,
+                child: Text('Save Body Check'),
+              ),
+            ],
           ),
-          validator: (value) {
-            if (_isCustomBodyPartSelected && value!.isEmpty) {
-              return 'Please enter a custom body part';
-            }
-            return null;
-          },
         ),
-      SizedBox(height: 20),
-      Text(
-        'Rate Condition:',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
-      Slider(
-        value: _rating,
-        onChanged: (value) {
-          setState(() {
-            _rating = value;
-          });
-        },
-        min: 0,
-        max: 10,
-        divisions: 10,
-        label: _rating.toStringAsFixed(1),
-      ),
-      SizedBox(height: 20),
-      Row(
-        children: [
-          Checkbox(
-            value: _isCompleted,
-            onChanged: (value) {
-              setState(() {
-                _isCompleted = value!;
-              });
-            },
-          ),
-          Text(
-            'Mark as Completed',
-            style: TextStyle(fontSize: 16),
-          ),
-        ],
-      ),
-      SizedBox(height: 20),
-      ElevatedButton(
-        onPressed: _validateAndSubmit,
-        child: Text('Save Body Check'),
-      ),
-    ],
-    ),
-    ),
-        ),
       floatingActionButton: FloatingActionButton(
         onPressed: _resetForm,
         tooltip: 'Undo',
@@ -358,7 +368,7 @@ class _CreatePageState extends State<CreatePage> {
 
 
 
-    class SchedulePage extends StatefulWidget {
+class SchedulePage extends StatefulWidget {
   @override
   _SchedulePageState createState() => _SchedulePageState();
 }
@@ -489,6 +499,12 @@ class SettingsPage extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Center(
+            child: Image.asset(
+              'assets/bodycheck.png',
+              height: 100, // Adjust this value as needed
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
@@ -547,3 +563,4 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
+
