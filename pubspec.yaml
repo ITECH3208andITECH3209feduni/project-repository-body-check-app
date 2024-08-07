@@ -23,6 +23,9 @@ flutter:
   assets:
     - assets/Breathless.png
     - assets/Butterflies.png
+    - assets/mascot_fox.png
+    - assets/mascot_lizard.png
+    - assets/mascot_shark.png
 
   # Uncomment and add any fonts or other configurations here if needed
   # fonts:
@@ -31,5 +34,6 @@ flutter:
   #       - asset: fonts/Schyler-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
+
 
 
