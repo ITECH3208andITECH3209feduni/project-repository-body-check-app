@@ -13,11 +13,13 @@ void main() {
 class AppStateManager with ChangeNotifier {
   ThemeData _themeData;
   String _selectedMascot = 'assets/mascot_shark.png';
+  bool _isLoggedIn = false;
 
   AppStateManager(this._themeData);
 
   ThemeData get themeData => _themeData;
   String get selectedMascot => _selectedMascot;
+  bool get isLoggedIn => _isLoggedIn;
 
   void toggleTheme() {
     _themeData = _themeData.brightness == Brightness.light
@@ -30,6 +32,16 @@ class AppStateManager with ChangeNotifier {
     _selectedMascot = mascot;
     notifyListeners();
   }
+
+  void login() {
+    _isLoggedIn = true;
+    notifyListeners();
+  }
+
+  void logout() {
+    _isLoggedIn = false;
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -38,12 +50,239 @@ class MyApp extends StatelessWidget {
     final appStateManager = Provider.of<AppStateManager>(context);
     return MaterialApp(
       theme: appStateManager.themeData,
-      home: HomeScreen(),
+      home: appStateManager.isLoggedIn ? HomeScreen() : LoginPage(),
       routes: {
+        '/home': (context) => HomeScreen(),
         '/create': (context) => CreatePage(),
         '/schedule': (context) => SchedulePage(),
         '/settings': (context) => SettingsPage(),
+        '/signup': (context) => SignUpPage(),  // New route for SignUpPage
       },
+    );
+  }
+}
+
+
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  String _email = '';
+  String _password = '';
+
+  void _login() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      Provider.of<AppStateManager>(context, listen: false).login();
+      Navigator.pushReplacementNamed(context, '/home');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _email = value!,
+              ),
+              SizedBox(height: 16.0),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _password = value!,
+              ),
+              SizedBox(height: 24.0),
+              ElevatedButton(
+                child: Text('Login'),
+                onPressed: _login,
+              ),
+              TextButton(
+                child: Text('Forgot Password?'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PasswordResetPage()),
+                  );
+                },
+              ),
+              // New Sign Up button
+              TextButton(
+                child: Text('Don\'t have an account? Sign Up'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SignUpPage()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class SignUpPage extends StatefulWidget {
+  @override
+  _SignUpPageState createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  final _formKey = GlobalKey<FormState>();
+  String _email = '';
+  String _password = '';
+  String _confirmPassword = '';
+
+  void _signUp() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      // Here you would typically send the sign-up information to your backend
+      // For now, we'll just show a success message and navigate back to login
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sign up successful! Please log in.')),
+      );
+      Navigator.pop(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Sign Up'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  // You can add more email validation here
+                  return null;
+                },
+                onSaved: (value) => _email = value!,
+              ),
+              SizedBox(height: 16.0),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters long';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _password = value!,
+              ),
+              SizedBox(height: 16.0),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Confirm Password'),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your password';
+                  }
+                  if (value != _password) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _confirmPassword = value!,
+              ),
+              SizedBox(height: 24.0),
+              ElevatedButton(
+                child: Text('Sign Up'),
+                onPressed: _signUp,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class PasswordResetPage extends StatelessWidget {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Reset Password'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 24.0),
+              ElevatedButton(
+                child: Text('Send Reset Link'),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Reset link sent to ${_emailController.text}')),
+                    );
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -64,13 +303,20 @@ class HomeScreen extends StatelessWidget {
             icon: Icon(Icons.help_outline),
             onPressed: () => _showHelpDialog(context),
           ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              appStateManager.logout();
+              Navigator.pushReplacementNamed(context, '/');
+            },
+          ),
         ],
       ),
       body: Column(
         children: [
           Image.asset(
             'assets/bodycheck.png',
-            height: 100, // Adjust this value as needed
+            height: 100,
           ),
           Expanded(
             child: Center(
@@ -172,7 +418,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-
 class CreatePage extends StatefulWidget {
   @override
   _CreatePageState createState() => _CreatePageState();
@@ -233,130 +478,130 @@ class _CreatePageState extends State<CreatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Create Custom Body Check'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              Text('Select Body Part:'),
-              Row(
-                children: [
-                  Radio<String>(
-                    value: 'Head',
-                    groupValue: _selectedBodyPart,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedBodyPart = value!;
-                        _isCustomBodyPartSelected = false;
-                      });
-                    },
-                  ),
-                  Text('Head'),
-                  Radio<String>(
-                    value: 'Torso',
-                    groupValue: _selectedBodyPart,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedBodyPart = value!;
-                        _isCustomBodyPartSelected = false;
-                      });
-                    },
-                  ),
-                  Text('Torso'),
-                  Radio<String>(
-                    value: 'Legs',
-                    groupValue: _selectedBodyPart,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedBodyPart = value!;
-                        _isCustomBodyPartSelected = false;
-                      });
-                    },
-                  ),
-                  Text('Legs'),
-                  Radio<String>(
-                    value: 'Custom',
-                    groupValue: _selectedBodyPart,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedBodyPart = value!;
-                        _isCustomBodyPartSelected = true;
-                      });
-                    },
-                  ),
-                  Text('Custom'),
-                ],
-              ),
-              if (_isCustomBodyPartSelected)
-                TextFormField(
-                  onChanged: (value) {
-                    setState(() {
-                      _customBodyPart = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Custom Body Part',
-                  ),
-                  validator: (value) {
-                    if (_isCustomBodyPartSelected && value!.isEmpty) {
-                      return 'Please enter a custom body part';
-                    }
-                    return null;
-                  },
-                ),
-              SizedBox(height: 20),
-              Text(
-                'Rate Condition:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              Slider(
-                value: _rating,
-                onChanged: (value) {
-                  setState(() {
-                    _rating = value;
-                  });
-                },
-                min: 0,
-                max: 10,
-                divisions: 10,
-                label: _rating.toStringAsFixed(1),
-              ),
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _isCompleted,
-                    onChanged: (value) {
-                      setState(() {
-                        _isCompleted = value!;
-                      });
-                    },
-                  ),
-                  Text(
-                    'Mark as Completed',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _validateAndSubmit,
-                child: Text('Save Body Check'),
-              ),
-            ],
+        appBar: AppBar(
+          title: Text('Create Custom Body Check'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
         ),
+        body: Padding(
+        padding: const EdgeInsets.all(20.0),
+    child: Form(
+    key: _formKey,
+    child: ListView(
+    children: [
+    Text('Select Body Part:'),
+    Row(
+    children: [
+    Radio<String>(
+    value: 'Head',
+    groupValue: _selectedBodyPart,
+    onChanged: (String? value) {
+    setState(() {
+    _selectedBodyPart = value!;
+    _isCustomBodyPartSelected = false;
+    });
+    },
+    ),
+    Text('Head'),
+    Radio<String>(
+    value: 'Torso',
+    groupValue: _selectedBodyPart,
+    onChanged: (String? value) {
+    setState(() {
+    _selectedBodyPart = value!;
+    _isCustomBodyPartSelected = false;
+    });
+    },
+    ),
+    Text('Torso'),
+    Radio<String>(
+    value: 'Legs',
+    groupValue: _selectedBodyPart,
+    onChanged: (String? value) {
+    setState(() {
+    _selectedBodyPart = value!;
+    _isCustomBodyPartSelected = false;
+    });
+    },
+    ),
+    Text('Legs'),
+    Radio<String>(
+    value: 'Custom',
+    groupValue: _selectedBodyPart,
+    onChanged: (String? value) {
+    setState(() {
+    _selectedBodyPart = value!;
+    _isCustomBodyPartSelected = true;
+    });
+    },
+    ),
+    Text('Custom'),
+    ],
+    ),
+      if (_isCustomBodyPartSelected)
+        TextFormField(
+          onChanged: (value) {
+            setState(() {
+              _customBodyPart = value;
+            });
+          },
+          decoration: InputDecoration(
+            labelText: 'Custom Body Part',
+          ),
+          validator: (value) {
+            if (_isCustomBodyPartSelected && value!.isEmpty) {
+              return 'Please enter a custom body part';
+            }
+            return null;
+          },
+        ),
+      SizedBox(height: 20),
+      Text(
+        'Rate Condition:',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
+      Slider(
+        value: _rating,
+        onChanged: (value) {
+          setState(() {
+            _rating = value;
+          });
+        },
+        min: 0,
+        max: 10,
+        divisions: 10,
+        label: _rating.toStringAsFixed(1),
+      ),
+      SizedBox(height: 20),
+      Row(
+        children: [
+          Checkbox(
+            value: _isCompleted,
+            onChanged: (value) {
+              setState(() {
+                _isCompleted = value!;
+              });
+            },
+          ),
+          Text(
+            'Mark as Completed',
+            style: TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+      SizedBox(height: 20),
+      ElevatedButton(
+        onPressed: _validateAndSubmit,
+        child: Text('Save Body Check'),
+      ),
+    ],
+    ),
+    ),
+        ),
       floatingActionButton: FloatingActionButton(
         onPressed: _resetForm,
         tooltip: 'Undo',
@@ -365,7 +610,6 @@ class _CreatePageState extends State<CreatePage> {
     );
   }
 }
-
 
 
 class SchedulePage extends StatefulWidget {
@@ -477,7 +721,6 @@ class _SchedulePageState extends State<SchedulePage> {
     );
   }
 }
-
 class SettingsPage extends StatelessWidget {
   final List<String> mascots = [
     'assets/mascot_fox.png',
@@ -509,7 +752,7 @@ class SettingsPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               'Select Mascot:',
-              style: Theme.of(context).textTheme.headline6,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           Expanded(
@@ -563,4 +806,3 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
-
