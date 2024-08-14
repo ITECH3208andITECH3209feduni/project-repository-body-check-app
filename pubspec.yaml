@@ -21,11 +21,10 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/Breathless.png
-    - assets/Butterflies.png
     - assets/mascot_fox.png
     - assets/mascot_lizard.png
     - assets/mascot_shark.png
+    - assets/bodycheck.png
 
   # Uncomment and add any fonts or other configurations here if needed
   # fonts:
