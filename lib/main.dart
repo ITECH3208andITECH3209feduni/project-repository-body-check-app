@@ -13,13 +13,13 @@ void main() {
 class AppStateManager with ChangeNotifier {
   ThemeData _themeData;
   String _selectedMascot = 'assets/mascot_shark.png';
-  bool _isLoggedIn = false;
+  String _userName = '';
 
   AppStateManager(this._themeData);
 
   ThemeData get themeData => _themeData;
   String get selectedMascot => _selectedMascot;
-  bool get isLoggedIn => _isLoggedIn;
+  String get userName => _userName;
 
   void toggleTheme() {
     _themeData = _themeData.brightness == Brightness.light
@@ -33,13 +33,8 @@ class AppStateManager with ChangeNotifier {
     notifyListeners();
   }
 
-  void login() {
-    _isLoggedIn = true;
-    notifyListeners();
-  }
-
-  void logout() {
-    _isLoggedIn = false;
+  void setUserName(String name) {
+    _userName = name;
     notifyListeners();
   }
 }
@@ -48,239 +43,60 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appStateManager = Provider.of<AppStateManager>(context);
+
     return MaterialApp(
       theme: appStateManager.themeData,
-      home: appStateManager.isLoggedIn ? HomeScreen() : LoginPage(),
+      home: appStateManager.userName.isEmpty ? IntroScreen() : HomeScreen(),
       routes: {
-        '/home': (context) => HomeScreen(),
         '/create': (context) => CreatePage(),
         '/schedule': (context) => SchedulePage(),
         '/settings': (context) => SettingsPage(),
-        '/signup': (context) => SignUpPage(),  // New route for SignUpPage
       },
     );
   }
 }
 
-
-class LoginPage extends StatefulWidget {
-  @override
-  _LoginPageState createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
-  String _email = '';
-  String _password = '';
-
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      Provider.of<AppStateManager>(context, listen: false).login();
-      Navigator.pushReplacementNamed(context, '/home');
-    }
-  }
+class IntroScreen extends StatelessWidget {
+  final TextEditingController _nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final appStateManager = Provider.of<AppStateManager>(context);
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Login'),
-      ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _email = value!,
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(appStateManager.selectedMascot, height: 150),
+            SizedBox(height: 20),
+            Text(
+              'Hello! What\'s your name?',
+              style: TextStyle(fontSize: 24),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: 'Your Name',
+                border: OutlineInputBorder(),
               ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _password = value!,
-              ),
-              SizedBox(height: 24.0),
-              ElevatedButton(
-                child: Text('Login'),
-                onPressed: _login,
-              ),
-              TextButton(
-                child: Text('Forgot Password?'),
-                onPressed: () {
-                  Navigator.push(
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                if (_nameController.text.isNotEmpty) {
+                  appStateManager.setUserName(_nameController.text);
+                  Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => PasswordResetPage()),
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
                   );
-                },
-              ),
-              // New Sign Up button
-              TextButton(
-                child: Text('Don\'t have an account? Sign Up'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignUpPage()),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-class SignUpPage extends StatefulWidget {
-  @override
-  _SignUpPageState createState() => _SignUpPageState();
-}
-
-class _SignUpPageState extends State<SignUpPage> {
-  final _formKey = GlobalKey<FormState>();
-  String _email = '';
-  String _password = '';
-  String _confirmPassword = '';
-
-  void _signUp() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      // Here you would typically send the sign-up information to your backend
-      // For now, we'll just show a success message and navigate back to login
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sign up successful! Please log in.')),
-      );
-      Navigator.pop(context);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Sign Up'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  // You can add more email validation here
-                  return null;
-                },
-                onSaved: (value) => _email = value!,
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters long';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _password = value!,
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Confirm Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please confirm your password';
-                  }
-                  if (value != _password) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _confirmPassword = value!,
-              ),
-              SizedBox(height: 24.0),
-              ElevatedButton(
-                child: Text('Sign Up'),
-                onPressed: _signUp,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-class PasswordResetPage extends StatelessWidget {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Reset Password'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 24.0),
-              ElevatedButton(
-                child: Text('Send Reset Link'),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Reset link sent to ${_emailController.text}')),
-                    );
-                    Navigator.pop(context);
-                  }
-                },
-              ),
-            ],
-          ),
+                }
+              },
+              child: Text('Continue'),
+            ),
+          ],
         ),
       ),
     );
@@ -291,6 +107,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appStateManager = Provider.of<AppStateManager>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Home'),
@@ -302,13 +119,6 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.help_outline),
             onPressed: () => _showHelpDialog(context),
-          ),
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              appStateManager.logout();
-              Navigator.pushReplacementNamed(context, '/');
-            },
           ),
         ],
       ),
@@ -329,11 +139,21 @@ class HomeScreen extends StatelessWidget {
                     height: 150,
                   ),
                   SizedBox(height: 20),
-                  Text('Welcome to the Body Check App'),
+                  Text('Welcome to the Body Check App, ${appStateManager.userName}!'),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/create'),
-                    child: Text('Create Body Check'),
+                    onPressed: () async {
+                      // Wait for the selected description from CreatePage
+                      final result = await Navigator.pushNamed(context, '/create');
+
+                      // If a result is returned, show it in a SnackBar
+                      if (result != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Selected: $result')),
+                        );
+                      }
+                    },
+                    child: Text('Submit a Body Check'), // Changed text here
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.pushNamed(context, '/schedule'),
@@ -418,198 +238,126 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class CreatePage extends StatefulWidget {
-  @override
-  _CreatePageState createState() => _CreatePageState();
-}
+class CreatePage extends StatelessWidget {
+  final List<String> imagePaths = [
+    'assets/Breathless.png', // Update with your actual asset paths
+    'assets/Butterflies.png',
+    'assets/Bloated.png',
+    'assets/Cramp.png',
+    'assets/Dry.png',
+    'assets/Gassy.png',
+    'assets/Growling.png',
+    'assets/Nauseous.png',
+    'assets/Want to move.png',
+    'assets/Wobbly.png',
+  ];
 
-class _CreatePageState extends State<CreatePage> {
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController _bodyCheckController = TextEditingController();
-  double _rating = 0;
-  bool _isCompleted = false;
-  String _selectedBodyPart = 'Head';
-  bool _isCustomBodyPartSelected = false;
-  String _customBodyPart = '';
-
-  void _showDialog(String title, String content) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: <Widget>[
-            ElevatedButton(
-              child: Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _validateAndSubmit() {
-    if (_formKey.currentState!.validate()) {
-      _showDialog(
-        "Success",
-        "Body Check details are valid:\nBody Part: ${_isCustomBodyPartSelected ? _customBodyPart : _selectedBodyPart}\nRating: $_rating\nCompleted: $_isCompleted",
-      );
-      _bodyCheckController.clear();
-    } else {
-      _showDialog("Error", "Please correct the errors in the form.");
-    }
-  }
-
-  void _resetForm() {
-    setState(() {
-      _bodyCheckController.clear();
-      _rating = 0;
-      _isCompleted = false;
-      _selectedBodyPart = 'Head';
-      _isCustomBodyPartSelected = false;
-      _customBodyPart = '';
-    });
-  }
+  final List<String> imageDescriptions = [
+    'Breathless',
+    'Butterflies',
+    'Bloated',
+    'Cramp',
+    'Dry',
+    'Gassy',
+    'Growling',
+    'Nauseous',
+    'Want to move',
+    'Wobbly',
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final appStateManager = Provider.of<AppStateManager>(context);
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Create Custom Body Check'),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        body: Padding(
-        padding: const EdgeInsets.all(20.0),
-    child: Form(
-    key: _formKey,
-    child: ListView(
-    children: [
-    Text('Select Body Part:'),
-    Row(
-    children: [
-    Radio<String>(
-    value: 'Head',
-    groupValue: _selectedBodyPart,
-    onChanged: (String? value) {
-    setState(() {
-    _selectedBodyPart = value!;
-    _isCustomBodyPartSelected = false;
-    });
-    },
-    ),
-    Text('Head'),
-    Radio<String>(
-    value: 'Torso',
-    groupValue: _selectedBodyPart,
-    onChanged: (String? value) {
-    setState(() {
-    _selectedBodyPart = value!;
-    _isCustomBodyPartSelected = false;
-    });
-    },
-    ),
-    Text('Torso'),
-    Radio<String>(
-    value: 'Legs',
-    groupValue: _selectedBodyPart,
-    onChanged: (String? value) {
-    setState(() {
-    _selectedBodyPart = value!;
-    _isCustomBodyPartSelected = false;
-    });
-    },
-    ),
-    Text('Legs'),
-    Radio<String>(
-    value: 'Custom',
-    groupValue: _selectedBodyPart,
-    onChanged: (String? value) {
-    setState(() {
-    _selectedBodyPart = value!;
-    _isCustomBodyPartSelected = true;
-    });
-    },
-    ),
-    Text('Custom'),
-    ],
-    ),
-      if (_isCustomBodyPartSelected)
-        TextFormField(
-          onChanged: (value) {
-            setState(() {
-              _customBodyPart = value;
-            });
-          },
-          decoration: InputDecoration(
-            labelText: 'Custom Body Part',
-          ),
-          validator: (value) {
-            if (_isCustomBodyPartSelected && value!.isEmpty) {
-              return 'Please enter a custom body part';
-            }
-            return null;
+      appBar: AppBar(
+        title: Text('Submit a Body Check'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
           },
         ),
-      SizedBox(height: 20),
-      Text(
-        'Rate Condition:',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
-      Slider(
-        value: _rating,
-        onChanged: (value) {
-          setState(() {
-            _rating = value;
-          });
-        },
-        min: 0,
-        max: 10,
-        divisions: 10,
-        label: _rating.toStringAsFixed(1),
-      ),
-      SizedBox(height: 20),
-      Row(
-        children: [
-          Checkbox(
-            value: _isCompleted,
-            onChanged: (value) {
-              setState(() {
-                _isCompleted = value!;
-              });
-            },
-          ),
-          Text(
-            'Mark as Completed',
-            style: TextStyle(fontSize: 16),
-          ),
-        ],
-      ),
-      SizedBox(height: 20),
-      ElevatedButton(
-        onPressed: _validateAndSubmit,
-        child: Text('Save Body Check'),
-      ),
-    ],
-    ),
-    ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            // Swap positions: Speech bubble on the left and mascot on the right
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8),
+                  margin: EdgeInsets.only(top: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        offset: Offset(0, 2),
+                        blurRadius: 5,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'How are you feeling?',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                SizedBox(width: 10), // Space between the speech bubble and the mascot
+                Image.asset(
+                  appStateManager.selectedMascot, // Use the selected mascot
+                  width: 100, // Adjust size as needed
+                  height: 100,
+                ),
+              ],
+            ),
+            SizedBox(height: 20), // Space after the speech bubble
+            // GridView for images
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, // 3 columns
+                  crossAxisSpacing: 8.0,
+                  mainAxisSpacing: 8.0,
+                ),
+                itemCount: imagePaths.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      // Handle image click and return the selected description
+                      Navigator.pop(context, imageDescriptions[index]);
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Image.asset(
+                            imagePaths[index],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          imageDescriptions[index],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _resetForm,
-        tooltip: 'Undo',
-        child: Icon(Icons.undo),
       ),
     );
   }
 }
+
 
 
 class SchedulePage extends StatefulWidget {
@@ -721,6 +469,7 @@ class _SchedulePageState extends State<SchedulePage> {
     );
   }
 }
+
 class SettingsPage extends StatelessWidget {
   final List<String> mascots = [
     'assets/mascot_fox.png',
@@ -728,9 +477,13 @@ class SettingsPage extends StatelessWidget {
     'assets/mascot_lizard.png',
   ];
 
+  final TextEditingController _nameController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final appStateManager = Provider.of<AppStateManager>(context);
+    _nameController.text = appStateManager.userName;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -745,14 +498,37 @@ class SettingsPage extends StatelessWidget {
           Center(
             child: Image.asset(
               'assets/bodycheck.png',
-              height: 100, // Adjust this value as needed
+              height: 100,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
+              'Your Name:',
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: 'Change Your Name',
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (newName) {
+                if (newName.isNotEmpty) {
+                  appStateManager.setUserName(newName);
+                }
+              },
+            ),
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
               'Select Mascot:',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.headline6,
             ),
           ),
           Expanded(
@@ -806,3 +582,4 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
+
