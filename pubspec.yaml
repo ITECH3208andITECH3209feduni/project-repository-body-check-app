@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   provider: ^6.0.1
   cupertino_icons: ^1.0.6
+  shared_preferences: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -26,6 +27,15 @@ flutter:
     - assets/mascot_fox.png
     - assets/mascot_lizard.png
     - assets/mascot_shark.png
+    - assets/Bloated.png
+    - assets/Dry.png
+    - assets/Gassy.png
+    - assets/Growling.png
+    - assets/Nauseous.png
+    - assets/Want to move.png
+    - assets/Wobbly.png
+    - assets/Cramp.png
+    - assets/bodycheck.png
 
   # Uncomment and add any fonts or other configurations here if needed
   # fonts:
@@ -34,6 +44,7 @@ flutter:
   #       - asset: fonts/Schyler-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
+
 
 
 
