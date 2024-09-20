@@ -51,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/create': (context) => CreatePage(),
         '/schedule': (context) => SchedulePage(),
         '/settings': (context) => SettingsPage(),
+        '/stomach': (context) => StomachScreen(), // New route for the stomach screen
       },
     );
   }
@@ -64,39 +65,148 @@ class IntroScreen extends StatelessWidget {
     final appStateManager = Provider.of<AppStateManager>(context);
 
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(appStateManager.selectedMascot, height: 150),
-            SizedBox(height: 20),
-            Text(
-              'Hello! What\'s your name?',
-              style: TextStyle(fontSize: 24),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Your Name',
-                border: OutlineInputBorder(),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background_main.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/bodycheck.png',
+                height: 150,
               ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (_nameController.text.isNotEmpty) {
-                  appStateManager.setUserName(_nameController.text);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );
-                }
-              },
-              child: Text('Continue'),
-            ),
-          ],
+              SizedBox(height: 20),
+              Image.asset(appStateManager.selectedMascot, height: 100),
+              SizedBox(height: 20),
+              Container(
+                padding: EdgeInsets.all(16),
+                margin: EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Color(0xFF00E676),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'Hello there! I\'m Ziggy, let\'s check up on your body. What\'s your name?',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Please enter your name below:',
+                style: TextStyle(fontSize: 20),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Your Name',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_nameController.text.isNotEmpty) {
+                    appStateManager.setUserName(_nameController.text);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => StomachScreen()), // Navigate to the new screen
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF000080),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                ),
+                child: Text('Continue'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class StomachScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final appStateManager = Provider.of<AppStateManager>(context);
+
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background_main.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Ziggy the shark image with fixed size
+              Image.asset(
+                appStateManager.selectedMascot,
+                width: 120,  // Adjust width
+                height: 120, // Adjust height
+              ),
+              SizedBox(height: 20),
+              Container(
+                padding: EdgeInsets.all(16),
+                margin: EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Color(0xFF00E676),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Text(
+                  "Let's take a look at your stomach!",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(height: 20),
+              // Stomach image acting as an icon with increased size and tappable action
+              InkWell(
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, '/');
+                },
+                child: Image.asset(
+                  'assets/stomach.png',
+                  width: 150,  // Adjust width for better proportion
+                  height: 150, // Adjust height for better proportion
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -107,52 +217,107 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appStateManager = Provider.of<AppStateManager>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Icon(
+          Icons.home,
+          color: Color(0xFF00E676),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings, color: Color(0xFF00E676)),
             onPressed: () => Navigator.pushNamed(context, '/settings'),
           ),
           IconButton(
-            icon: Icon(Icons.help_outline),
+            icon: Icon(Icons.help_outline, color: Color(0xFF00E676)),
             onPressed: () => _showHelpDialog(context),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Image.asset(
-            'assets/bodycheck.png',
-            height: 100, // Adjust this value as needed
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background_main.jpg'),
+            fit: BoxFit.cover,
           ),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Image.asset(
-                    appStateManager.selectedMascot,
-                    width: 150,
-                    height: 150,
-                  ),
-                  SizedBox(height: 20),
-                  Text('Welcome to the Body Check App, ${appStateManager.userName}!'),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/create'),
-                    child: Text('Create Body Check'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/schedule'),
-                    child: Text('Schedule Checks'),
-                  ),
-                ],
+        ),
+        child: Column(
+          children: [
+            Image.asset(
+              'assets/bodycheck.png',
+              height: 200,
+            ),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          margin: EdgeInsets.only(top: 20),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF00E676),
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                offset: Offset(0, 2),
+                                blurRadius: 5,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            "Let's try this out!",
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Image.asset(
+                          appStateManager.selectedMascot,
+                          width: 150,
+                          height: 150,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Text('Welcome to the Body Check App, ${appStateManager.userName}!'),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final result = await Navigator.pushNamed(context, '/create');
+                        if (result != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Selected: $result')),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF000080),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      ),
+                      child: Text('Submit a Body Check'),
+                    ),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, '/schedule'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF000080),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      ),
+                      child: Text('Schedule Checks'),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -169,24 +334,21 @@ class HomeScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    _showIndividualHelp(
-                        context, 'Creation Page', 'Create a custom body check.');
+                    _showIndividualHelp(context, 'Creation Page', 'Create a custom body check.');
                   },
                   child: Text('Creation Page'),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    _showIndividualHelp(
-                        context, 'Schedule Page', 'Schedule your body checks.');
+                    _showIndividualHelp(context, 'Schedule Page', 'Schedule your body checks.');
                   },
                   child: Text('Schedule Page'),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    _showIndividualHelp(context, 'Settings Page',
-                        'Toggle between light and dark themes.');
+                    _showIndividualHelp(context, 'Settings Page', 'Toggle between light and dark themes.');
                   },
                   child: Text('Settings Page'),
                 ),
@@ -227,309 +389,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class CreatePage extends StatefulWidget {
-  @override
-  _CreatePageState createState() => _CreatePageState();
-}
-
-class _CreatePageState extends State<CreatePage> {
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController _bodyCheckController = TextEditingController();
-  double _rating = 0;
-  bool _isCompleted = false;
-  String _selectedBodyPart = 'Head';
-  bool _isCustomBodyPartSelected = false;
-  String _customBodyPart = '';
-
-  void _showDialog(String title, String content) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: <Widget>[
-            ElevatedButton(
-              child: Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _validateAndSubmit() {
-    if (_formKey.currentState!.validate()) {
-      _showDialog(
-        "Success",
-        "Body Check details are valid:\nBody Part: ${_isCustomBodyPartSelected ? _customBodyPart : _selectedBodyPart}\nRating: $_rating\nCompleted: $_isCompleted",
-      );
-      _bodyCheckController.clear();
-    } else {
-      _showDialog("Error", "Please correct the errors in the form.");
-    }
-  }
-
-  void _resetForm() {
-    setState(() {
-      _bodyCheckController.clear();
-      _rating = 0;
-      _isCompleted = false;
-      _selectedBodyPart = 'Head';
-      _isCustomBodyPartSelected = false;
-      _customBodyPart = '';
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Create Custom Body Check'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              Text('Select Body Part:'),
-              Row(
-                children: [
-                  Radio<String>(
-                    value: 'Head',
-                    groupValue: _selectedBodyPart,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedBodyPart = value!;
-                        _isCustomBodyPartSelected = false;
-                      });
-                    },
-                  ),
-                  Text('Head'),
-                  Radio<String>(
-                    value: 'Torso',
-                    groupValue: _selectedBodyPart,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedBodyPart = value!;
-                        _isCustomBodyPartSelected = false;
-                      });
-                    },
-                  ),
-                  Text('Torso'),
-                  Radio<String>(
-                    value: 'Legs',
-                    groupValue: _selectedBodyPart,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedBodyPart = value!;
-                        _isCustomBodyPartSelected = false;
-                      });
-                    },
-                  ),
-                  Text('Legs'),
-                  Radio<String>(
-                    value: 'Custom',
-                    groupValue: _selectedBodyPart,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedBodyPart = value!;
-                        _isCustomBodyPartSelected = true;
-                      });
-                    },
-                  ),
-                  Text('Custom'),
-                ],
-              ),
-              if (_isCustomBodyPartSelected)
-                TextFormField(
-                  onChanged: (value) {
-                    setState(() {
-                      _customBodyPart = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Custom Body Part',
-                  ),
-                  validator: (value) {
-                    if (_isCustomBodyPartSelected && value!.isEmpty) {
-                      return 'Please enter a custom body part';
-                    }
-                    return null;
-                  },
-                ),
-              SizedBox(height: 20),
-              Text(
-                'Rate Condition:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              Slider(
-                value: _rating,
-                onChanged: (value) {
-                  setState(() {
-                    _rating = value;
-                  });
-                },
-                min: 0,
-                max: 10,
-                divisions: 10,
-                label: _rating.toStringAsFixed(1),
-              ),
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _isCompleted,
-                    onChanged: (value) {
-                      setState(() {
-                        _isCompleted = value!;
-                      });
-                    },
-                  ),
-                  Text(
-                    'Mark as Completed',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _validateAndSubmit,
-                child: Text('Save Body Check'),
-              ),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _resetForm,
-        tooltip: 'Undo',
-        child: Icon(Icons.undo),
-      ),
-    );
-  }
-}
-
-class SchedulePage extends StatefulWidget {
-  @override
-  _SchedulePageState createState() => _SchedulePageState();
-}
-
-class _SchedulePageState extends State<SchedulePage> {
-  int _selectedOption = 1;
-  TimeOfDay _selectedTime = TimeOfDay.now();
-  final _formKey = GlobalKey<FormState>();
-
-  void _selectTime(BuildContext context) async {
-    final TimeOfDay? newTime = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime,
-    );
-    if (newTime != null) {
-      setState(() {
-        _selectedTime = newTime;
-      });
-    }
-  }
-
-  void _showDialog(String title, String content) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: <Widget>[
-            ElevatedButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _resetForm() {
-    setState(() {
-      _selectedOption = 1;
-      _selectedTime = TimeOfDay.now();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Schedule Checks')),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Select Option:'),
-              DropdownButton<int>(
-                value: _selectedOption,
-                onChanged: (int? newValue) {
-                  setState(() {
-                    _selectedOption = newValue!;
-                  });
-                },
-                items: <int>[1, 2, 3, 4].map((int value) {
-                  return DropdownMenuItem<int>(
-                    value: value,
-                    child: Text('Option $value'),
-                  );
-                }).toList(),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _selectTime(context);
-                },
-                child: Text('Select Time'),
-              ),
-              SizedBox(height: 20),
-              Text('Selected Time: ${_selectedTime.format(context)}'),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _showDialog(
-                      'Success',
-                      'Body Check scheduled successfully at ${_selectedTime.format(context)}',
-                    );
-                  } else {
-                    _showDialog('Error', 'Please select an option and time.');
-                  }
-                },
-                child: Text('Save Schedule'),
-              ),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _resetForm,
-        tooltip: 'Undo',
-        child: Icon(Icons.undo),
-      ),
-    );
-  }
-}
-
 class SettingsPage extends StatelessWidget {
   final List<String> mascots = [
     'assets/mascot_fox.png',
@@ -537,12 +396,9 @@ class SettingsPage extends StatelessWidget {
     'assets/mascot_lizard.png',
   ];
 
-  final TextEditingController _nameController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     final appStateManager = Provider.of<AppStateManager>(context);
-    _nameController.text = appStateManager.userName;
 
     return Scaffold(
       appBar: AppBar(
@@ -552,92 +408,265 @@ class SettingsPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Image.asset(
-              'assets/bodycheck.png',
-              height: 100, // Adjust this value as needed
-            ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background_main.jpg'),
+            fit: BoxFit.cover,
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Your Name:',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Change Your Name',
-                border: OutlineInputBorder(),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: 20),
+            Center(
+              child: Image.asset(
+                'assets/bodycheck.png',
+                height: 150,
               ),
-              onSubmitted: (newName) {
-                if (newName.isNotEmpty) {
-                  appStateManager.setUserName(newName);
-                }
-              },
             ),
-          ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Select Mascot:',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              padding: EdgeInsets.all(16.0),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
+            SizedBox(height: 20),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Select Mascot:',
+                  style: Theme.of(context).textTheme.headline6?.copyWith(fontSize: 24),
+                  textAlign: TextAlign.center,
+                ),
               ),
-              itemCount: mascots.length,
-              itemBuilder: (context, index) {
-                return InkWell(
-                  onTap: () {
-                    appStateManager.setMascot(mascots[index]);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Selected ${mascots[index].split('/').last}')),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: appStateManager.selectedMascot == mascots[index]
-                            ? Theme.of(context).colorScheme.secondary
-                            : Theme.of(context).primaryColor,
-                        width: appStateManager.selectedMascot == mascots[index] ? 3 : 1,
+            ),
+            Expanded(
+              child: GridView.builder(
+                padding: EdgeInsets.all(16.0),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                ),
+                itemCount: mascots.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () {
+                      appStateManager.setMascot(mascots[index]);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Selected ${mascots[index].split('/').last}')),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xFF4DD0E1),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.asset(
+                        mascots[index],
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    child: Image.asset(
-                      mascots[index],
-                      fit: BoxFit.cover,
+                  );
+                },
+              ),
+            ),
+            Divider(),
+            ListTile(
+              title: Text('Dark Mode'),
+              trailing: Switch(
+                value: appStateManager.themeData.brightness == Brightness.dark,
+                onChanged: (value) {
+                  appStateManager.toggleTheme();
+                },
+                activeColor: Color(0xFF00E676),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CreatePage extends StatelessWidget {
+  final List<String> imagePaths = [
+    'assets/Breathless.png',
+    'assets/Butterflies.png',
+    'assets/Bloated.png',
+    'assets/Cramp.png',
+    'assets/Dry.png',
+    'assets/Gassy.png',
+    'assets/Growling.png',
+    'assets/Nauseous.png',
+    'assets/Wobbly.png',
+  ];
+
+  final List<String> imageDescriptions = [
+    'Breathless',
+    'Butterflies',
+    'Bloated',
+    'Cramp',
+    'Dry',
+    'Gassy',
+    'Growling',
+    'Nauseous',
+    'Wobbly',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Submit a Body Check'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background_main.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    margin: EdgeInsets.only(top: 20),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF00E676),
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      "How are you feeling today?",
+                      style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                   ),
-                );
-              },
-            ),
+                  SizedBox(width: 10),
+                  Image.asset(
+                    'assets/mascot_shark.png',
+                    width: 100,
+                    height: 100,
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: imagePaths.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context, imageDescriptions[index]);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFF4DD0E1),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 2),
+                              blurRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: Card(
+                          color: Colors.transparent,
+                          elevation: 0,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(imagePaths[index], height: 80, width: 80),
+                              SizedBox(height: 10),
+                              Text(
+                                imageDescriptions[index],
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 20),
+              // Two new buttons at the bottom
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // "I'm not sure" button
+                  ElevatedButton(
+                    onPressed: () {
+                      // Add any action you want for this button
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF000080), // Navy blue color
+                      foregroundColor: Colors.white, // White text
+                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    ),
+                    child: Text("I'm not sure"),
+                  ),
+                  // "Save and exit" button
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF000080), // Navy blue color
+                      foregroundColor: Colors.white, // White text
+                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    ),
+                    child: Text("Save and exit"),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+            ],
           ),
-          Divider(),
-          ListTile(
-            title: Text('Dark Mode'),
-            trailing: Switch(
-              value: appStateManager.themeData.brightness == Brightness.dark,
-              onChanged: (value) {
-                appStateManager.toggleTheme();
-              },
-            ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class SchedulePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Schedule Body Checks'),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background_main.jpg'),
+            fit: BoxFit.cover,
           ),
-        ],
+        ),
+        child: Center(
+          child: Text('Here you can schedule your body checks.'),
+        ),
       ),
     );
   }
