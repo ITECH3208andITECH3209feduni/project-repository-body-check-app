@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+
 
 void main() {
   runApp(
@@ -51,7 +53,8 @@ class MyApp extends StatelessWidget {
         '/create': (context) => CreatePage(),
         '/schedule': (context) => SchedulePage(),
         '/settings': (context) => SettingsPage(),
-        '/stomach': (context) => StomachScreen(), // New route for the stomach screen
+        '/stomach': (context) => BodyPartsScreen(),
+        '/customCheck': (context) => CustomCheck(),  // Added CustomCheck route
       },
     );
   }
@@ -127,7 +130,7 @@ class IntroScreen extends StatelessWidget {
                     appStateManager.setUserName(_nameController.text);
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => StomachScreen()), // Navigate to the new screen
+                      MaterialPageRoute(builder: (context) => BodyPartsScreen()), // Navigate to the new screen
                     );
                   }
                 },
@@ -146,7 +149,25 @@ class IntroScreen extends StatelessWidget {
   }
 }
 
-class StomachScreen extends StatelessWidget {
+class BodyPartsScreen extends StatelessWidget {
+  final List<String> bodyPartIcons = [
+    'assets/head.png',
+    'assets/body.png',
+    'assets/arm.png',
+    'assets/leg.png',
+    'assets/foot.png',
+    'assets/stomach.png',
+  ];
+
+  final List<String> bodyPartNames = [
+    'Head',
+    'Body',
+    'Arm',
+    'Leg',
+    'Foot',
+    'Stomach',
+  ];
+
   @override
   Widget build(BuildContext context) {
     final appStateManager = Provider.of<AppStateManager>(context);
@@ -163,11 +184,10 @@ class StomachScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Ziggy the shark image with fixed size
               Image.asset(
                 appStateManager.selectedMascot,
-                width: 120,  // Adjust width
-                height: 120, // Adjust height
+                width: 120,
+                height: 120,
               ),
               SizedBox(height: 20),
               Container(
@@ -185,7 +205,7 @@ class StomachScreen extends StatelessWidget {
                   ],
                 ),
                 child: Text(
-                  "Let's take a look at your stomach!",
+                  "Which body part do you want to check?",
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white,
@@ -194,15 +214,51 @@ class StomachScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-              // Stomach image acting as an icon with increased size and tappable action
-              InkWell(
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/');
-                },
-                child: Image.asset(
-                  'assets/stomach.png',
-                  width: 150,  // Adjust width for better proportion
-                  height: 150, // Adjust height for better proportion
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: bodyPartIcons.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/');
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFF4DD0E1), // Square background color
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 2),
+                              blurRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              bodyPartIcons[index],
+                              height: 80,
+                              width: 80,
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              bodyPartNames[index],
+                              style: TextStyle(
+                                color: Colors.white, // Text color contrast
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -212,7 +268,6 @@ class StomachScreen extends StatelessWidget {
     );
   }
 }
-
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -617,16 +672,15 @@ class CreatePage extends StatelessWidget {
                   // "I'm not sure" button
                   ElevatedButton(
                     onPressed: () {
-                      // Add any action you want for this button
+                      Navigator.pushNamed(context, '/customCheck');  // Navigate to CustomCheck page
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF000080), // Navy blue color
+                      backgroundColor: Color(0xFF000080), // Navy blue background
                       foregroundColor: Colors.white, // White text
                       padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     ),
                     child: Text("I'm not sure"),
                   ),
-                  // "Save and exit" button
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pushReplacementNamed(context, '/');
@@ -650,12 +704,53 @@ class CreatePage extends StatelessWidget {
 }
 
 
-class SchedulePage extends StatelessWidget {
+class SchedulePage extends StatefulWidget {
+  @override
+  _SchedulePageState createState() => _SchedulePageState();
+}
+
+class _SchedulePageState extends State<SchedulePage> {
+  DateTime selectedDate = DateTime.now();
+  TimeOfDay selectedTime = TimeOfDay.now();
+  bool isReminderSet = false;
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2021),
+      lastDate: DateTime(2025),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+    );
+    if (picked != null && picked != selectedTime) {
+      setState(() {
+        selectedTime = picked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Schedule Body Checks'),
+        title: Text('Schedule Body Check'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Navigate back to the previous screen (Home)
+          },
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -664,8 +759,195 @@ class SchedulePage extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        child: Center(
-          child: Text('Here you can schedule your body checks.'),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image.asset(
+                'assets/bodycheck.png',
+                height: 200,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Schedule my body check',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              GestureDetector(
+                onTap: () => _selectDate(context),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF00E676),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(Icons.calendar_today, color: Colors.white),
+                      SizedBox(width: 10),
+                      Text(
+                        DateFormat('MMMM d, yyyy').format(selectedDate),
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              GestureDetector(
+                onTap: () => _selectTime(context),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF00E676),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(Icons.access_time, color: Colors.white),
+                      SizedBox(width: 10),
+                      Text(
+                        '${selectedTime.format(context)}',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Set Reminder', style: TextStyle(fontSize: 18)),
+                  Switch(
+                    value: isReminderSet,
+                    onChanged: (value) {
+                      setState(() {
+                        isReminderSet = value;
+                      });
+                    },
+                    activeColor: Color(0xFF00E676),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  // Save logic here
+                  Navigator.pop(context); // Go back to home screen
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF000080), // Navy blue background
+                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                ),
+                child: Text(
+                  'Save',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomCheck extends StatelessWidget {
+  final TextEditingController _textController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Custom Check'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Go back to the previous page
+          },
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background_main.jpg'), // Background image
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // First button
+              ElevatedButton(
+                onPressed: () {
+                  // Add any action you want for this button
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF000080), // Navy blue background
+                  foregroundColor: Colors.white, // White text for visibility
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20), // Increased padding for a larger button
+                ),
+                child: Text(
+                  "I'm not sure",
+                  style: TextStyle(fontSize: 18), // Larger font size for visibility
+                ),
+              ),
+              SizedBox(height: 30), // Increased space between buttons
+              // Second button
+              ElevatedButton(
+                onPressed: () {
+                  // Add any action you want for this button
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF000080), // Navy blue background
+                  foregroundColor: Colors.white, // White text for visibility
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20), // Increased padding for a larger button
+                ),
+                child: Text(
+                  "I know what it is but don't know the name",
+                  style: TextStyle(fontSize: 18), // Larger font size for visibility
+                ),
+              ),
+              SizedBox(height: 30), // Increased space between buttons
+              // Text field
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Light grey background for the text field
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: _textController,
+                  decoration: InputDecoration(
+                    hintText: 'express your feeling',
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              SizedBox(height: 30), // Increased space before the save button
+              // Save button
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Go back or navigate to home screen
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF000080), // Navy blue background
+                  foregroundColor: Colors.white, // White text for visibility
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20), // Increased padding for a larger button
+                ),
+                child: Text(
+                  'Save',
+                  style: TextStyle(fontSize: 18), // Larger font size for visibility
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
