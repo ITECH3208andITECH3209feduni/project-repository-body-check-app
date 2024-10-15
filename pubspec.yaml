@@ -1,4 +1,4 @@
-name: itech3208
+name: itech3209
 description: "A new Flutter project."
 publish_to: 'none'
 version: 1.0.0+1
@@ -9,20 +9,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  provider: ^6.0.1
-  cupertino_icons: ^1.0.6
-  shared_preferences: ^2.0.0
+  provider: ^6.0.0
+  intl: ^0.19.0
+  hive: ^2.0.0
+  hive_flutter: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.0.0
 
 flutter:
   uses-material-design: true
 
   assets:
     - assets/Breathless.png
+    - assets/background_main.jpg
     - assets/Butterflies.png
     - assets/mascot_fox.png
     - assets/mascot_lizard.png
@@ -36,15 +40,9 @@ flutter:
     - assets/Wobbly.png
     - assets/Cramp.png
     - assets/bodycheck.png
-
-  # Uncomment and add any fonts or other configurations here if needed
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-
-
-
-
+    - assets/stomach.png
+    - assets/head.png
+    - assets/body.png
+    - assets/arm.png
+    - assets/leg.png
+    - assets/foot.png
