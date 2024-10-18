@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:itech3209/models/symptom_record.dart'; // Ensure this import path is correct
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive
-  await Hive.initFlutter();
-
-  // Register Hive Adapters
-  Hive.registerAdapter(SymptomRecordAdapter());
-
-  // Open Hive Boxes
-  await Hive.openBox<SymptomRecord>('symptomRecords');
-
+void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppStateManager(ThemeData(brightness: Brightness.light)),
@@ -66,7 +54,7 @@ class MyApp extends StatelessWidget {
         '/schedule': (context) => SchedulePage(),
         '/settings': (context) => SettingsPage(),
         '/stomach': (context) => BodyPartsScreen(),
-        '/customCheck': (context) => CustomCheck(),  // Ensure CustomCheck is defined correctly
+        '/customCheck': (context) => CustomCheck(),  // Added CustomCheck route
       },
     );
   }
@@ -142,7 +130,7 @@ class IntroScreen extends StatelessWidget {
                     appStateManager.setUserName(_nameController.text);
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => BodyPartsScreen()),
+                      MaterialPageRoute(builder: (context) => BodyPartsScreen()), // Navigate to the new screen
                     );
                   }
                 },
@@ -237,7 +225,6 @@ class BodyPartsScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                        // Handle body part tap
                         Navigator.pushReplacementNamed(context, '/');
                       },
                       child: Container(
@@ -281,7 +268,6 @@ class BodyPartsScreen extends StatelessWidget {
     );
   }
 }
-
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -500,7 +486,7 @@ class SettingsPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'Select Mascot:',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 24),
+                  style: Theme.of(context).textTheme.headline6?.copyWith(fontSize: 24),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -594,7 +580,7 @@ class CreatePage extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background_main.jpg'), // Background image
+            image: AssetImage('assets/background_main.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -679,12 +665,14 @@ class CreatePage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
+              // Two new buttons at the bottom
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  // "I'm not sure" button
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/customCheck'); // Navigate to CustomCheck page
+                      Navigator.pushNamed(context, '/customCheck');  // Navigate to CustomCheck page
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF000080), // Navy blue background
@@ -714,6 +702,7 @@ class CreatePage extends StatelessWidget {
     );
   }
 }
+
 
 class SchedulePage extends StatefulWidget {
   @override
@@ -790,7 +779,7 @@ class _SchedulePageState extends State<SchedulePage> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
-                    color: Color(0xFF00E676), // Change it to your desired color
+                    color: Color(0xFF00E676),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -799,7 +788,7 @@ class _SchedulePageState extends State<SchedulePage> {
                       Icon(Icons.calendar_today, color: Colors.white),
                       SizedBox(width: 10),
                       Text(
-                        DateFormat('MMMM d, yyyy').format(selectedDate), // Format the date
+                        DateFormat('MMMM d, yyyy').format(selectedDate),
                         style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
                     ],
@@ -812,7 +801,7 @@ class _SchedulePageState extends State<SchedulePage> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
-                    color: Color(0xFF00E676), // Change it to your desired color
+                    color: Color(0xFF00E676),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -901,7 +890,7 @@ class CustomCheck extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF000080), // Navy blue background
-                  foregroundColor: Colors.white, // White text
+                  foregroundColor: Colors.white, // White text for visibility
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20), // Increased padding for a larger button
                 ),
                 child: Text(
@@ -917,7 +906,7 @@ class CustomCheck extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF000080), // Navy blue background
-                  foregroundColor: Colors.white, // White text
+                  foregroundColor: Colors.white, // White text for visibility
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20), // Increased padding for a larger button
                 ),
                 child: Text(
@@ -926,7 +915,7 @@ class CustomCheck extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 30), // Increased space between buttons
-              // Text field for user input
+              // Text field
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 decoration: BoxDecoration(
@@ -936,7 +925,7 @@ class CustomCheck extends StatelessWidget {
                 child: TextField(
                   controller: _textController,
                   decoration: InputDecoration(
-                    hintText: 'Express your feeling',
+                    hintText: 'express your feeling',
                     border: InputBorder.none,
                   ),
                 ),
@@ -945,12 +934,11 @@ class CustomCheck extends StatelessWidget {
               // Save button
               ElevatedButton(
                 onPressed: () {
-                  // Logic to save the input or navigate away
                   Navigator.pop(context); // Go back or navigate to home screen
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF000080), // Navy blue background
-                  foregroundColor: Colors.white, // White text
+                  foregroundColor: Colors.white, // White text for visibility
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20), // Increased padding for a larger button
                 ),
                 child: Text(
